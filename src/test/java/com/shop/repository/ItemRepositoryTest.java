@@ -1,13 +1,23 @@
 package com.shop.repository;
 
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.shop.constant.ItemSellStatus;
 import com.shop.entity.Item;
+import com.shop.entity.QItem;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import com.querydsl.core.BooleanBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.thymeleaf.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,6 +29,9 @@ class ItemRepositoryTest {
 
     @Autowired
     ItemRepository itemRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     @DisplayName("상품 저장 테스트")
@@ -49,6 +62,31 @@ class ItemRepositoryTest {
 
         }
 
+    }
+
+    public void createItemList2(){
+        for(int i = 1; i <= 5; i++){
+            Item item = new Item();
+            item.setItemNm("테스트 상품" + i);
+            item.setPrice(10000 + i);
+            item.setItemDetail("테스트 상품 상세 설명" +i);
+            item.setItemSellStatus(ItemSellStatus.SELL);
+            item.setStockNumber(100);
+            item.setRegTime(LocalDateTime.now());
+            item.setUpdateTime(LocalDateTime.now());
+            itemRepository.save(item);
+        }
+        for(int i = 6; i <= 10; i++){
+            Item item = new Item();
+            item.setItemNm("테스트 상품" + i);
+            item.setPrice(10000 + i);
+            item.setItemDetail("테스트 상품 상세 설명" +i);
+            item.setItemSellStatus(ItemSellStatus.SOLD_OUT);
+            item.setStockNumber(100);
+            item.setRegTime(LocalDateTime.now());
+            item.setUpdateTime(LocalDateTime.now());
+            itemRepository.save(item);
+        }
     }
 
     @Test
@@ -110,6 +148,54 @@ class ItemRepositoryTest {
         List<Item> itemList = itemRepository.findByItemDetailByNative("테스트 상품 상세 설명");
         for(Item item : itemList){
             System.out.println(item.toString());
+        }
+    }
+
+    @Test
+    @DisplayName("Querydsl 조회 테스트1")
+    public void queryDslTest(){
+        this.createItemList();
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+        QItem qItem = QItem.item;
+        // 동적 쿼리 생성
+        JPAQuery<Item> query = queryFactory.selectFrom(qItem)
+                .where(qItem.itemSellStatus.eq(ItemSellStatus.SELL))
+                .where(qItem.itemDetail.like("%" + "테스트 상품 상세 설명" + "%"))
+                .orderBy(qItem.price.desc());
+
+        List<Item> itemList = query.fetch(); //조회 결과 리스트 반환
+
+        for (Item item : itemList){
+            System.out.println(item.toString());
+        }
+    }
+
+    @Test
+    @DisplayName("Querydsl 조회 테스트2")
+    public void queryDslTest2(){
+        this.createItemList2();
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        QItem item = QItem.item;
+
+        String itemDetail = "테스트 상품 상세 설명";
+        int price = 10003;
+        String itemSellStat = "SELL";
+        //다음과 같은 조건을 생성하고
+        booleanBuilder.and(item.itemDetail.like("%" + itemDetail + "%"));
+        booleanBuilder.and(item.price.gt(price));
+
+        if(StringUtils.equals(itemSellStat, ItemSellStatus.SELL)){
+            booleanBuilder.and(item.itemSellStatus.eq(ItemSellStatus.SELL));
+        }
+        //페이지는 List<Object>의 sublist로 우리가 전체 리스트 중 일부분만 보고 싶을 때 해당 리스트에서 특정 부분만 보겠다고 지정해주는데 사용한다.
+        Pageable pageable = PageRequest.of(0, 5);
+        //해당 조건에 맞는 데이터를모두 찾아올 수 있다.
+        Page<Item> itemPagingResult = itemRepository.findAll(booleanBuilder, pageable);
+        System.out.println("total elements :" +
+                itemPagingResult.getTotalElements());
+        List<Item>  resultItemList = itemPagingResult.getContent();
+        for(Item resultItem : resultItemList){
+            System.out.println(resultItem.toString());
         }
     }
 }
