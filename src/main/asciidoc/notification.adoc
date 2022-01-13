@@ -1,0 +1,55 @@
+= NOTIFICATION API
+notification-api-docs
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+=== Notification Home
+
+[cols=2*]
+|===
+|토큰종류
+|토큰
+
+|AccessToken(임시용)
+|Bearer kqAm4TcXJPaiGRlORCWCbfNO7-NOsUabc
+|===
+
+==== [더미] /ok
+===== Request Sample
+include::{snippets}/dummy/ok/http-request.adoc[]
+
+===== Request Parameters
+include::{snippets}/dummy/ok/request-parameters.adoc[]
+
+===== Response Sample
+include::{snippets}/dummy/ok/http-response.adoc[]
+
+===== Response Fields
+include::{snippets}/dummy/ok/response-fields.adoc[]
+
+===== 상태 코드 및 예외 메시지
+[cols=3*]
+|===
+|http status
+|예외 코드
+|예외 메세지
+
+|200
+|
+|
+
+|400
+|C400_0000
+|예외입니다.
+
+|===
+
+''''

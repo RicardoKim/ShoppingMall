@@ -1,9 +1,7 @@
 package com.shop.entity;
 
 import com.shop.constant.ItemSellStatus;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
@@ -11,9 +9,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "item")
-@Getter
-@Setter
-@ToString
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Item {
     @Id
     @Column(name = "item_id")
