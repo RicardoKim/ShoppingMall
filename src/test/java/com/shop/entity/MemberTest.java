@@ -31,6 +31,7 @@ public class MemberTest {
     @WithMockUser(username = "gildong", roles = "USER")
     public void auditingTest(){
         Member newMember = new Member();
+
         memberRepository.save(newMember);
 
         em.flush();

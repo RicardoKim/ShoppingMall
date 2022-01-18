@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class MemberService implements UserDetailsService {
-    private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository; // RequiredArgsConstructor 어노테이션으로 인해 final이나 @NonNull이 붙은 필드에 생성자를 생성해줍니다.
 
     public Member saveMember(Member member){
         validateDuplicateMember(member);
@@ -43,6 +43,4 @@ public class MemberService implements UserDetailsService {
                 .roles(member.getRole().toString())
                 .build();
     }
-
-
 }

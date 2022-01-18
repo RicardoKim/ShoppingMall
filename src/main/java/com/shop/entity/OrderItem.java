@@ -1,16 +1,14 @@
 package com.shop.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter //@Data로 바꾸면 @ToString부분에서 무한루프가 돈다. 뭔지 모르겠다.
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,4 +30,22 @@ public class OrderItem extends BaseEntity{
     private int orderPrice;
 
     private int count;
+
+    public static OrderItem createOrderItem(Item item, int count){
+        OrderItem orderItem = new OrderItem();
+        orderItem.setItem(item);
+        orderItem.setCount(count);
+        orderItem.setOrderPrice(item.getPrice());
+
+        item.removeStock(count);
+        return orderItem;
+    }
+
+    public int getTotalPrice(){ //가격 결정 메소드
+        return orderPrice*count;
+    }
+
+    public void cancle(){
+        this.getItem().addStock(count);
+    }
 }

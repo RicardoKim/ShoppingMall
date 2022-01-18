@@ -2,16 +2,16 @@ package com.shop.entity;
 
 import com.shop.constant.ItemSellStatus;
 import com.shop.dto.ItemFormDto;
+import com.shop.exception.OutOfStockException;
 import lombok.*;
-import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "item")
 @Getter
 @Setter
-@Table(name = "item")
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,8 +36,6 @@ public class Item extends BaseEntity{
 
     @Enumerated(EnumType.STRING)
     private ItemSellStatus itemSellStatus; //상품이 판매되고 있는지 아닌지를 판단할 때 사용하는 변수
-    private LocalDateTime regTime;
-    private LocalDateTime updateTime;
 
     public void updateTime(ItemFormDto itemFormDto){
         this.itemNm = itemFormDto.getItemNm();
@@ -45,5 +43,17 @@ public class Item extends BaseEntity{
         this.stockNumber = itemFormDto.getStockNumber();
         this.itemDetail = itemFormDto.getItemDetail();
         this.itemSellStatus = itemFormDto.getItemSellStatus();
+    }
+
+    public void removeStock(int stockNumber){
+        int restStock = this.stockNumber - stockNumber;
+        if(restStock < 0){
+            throw new OutOfStockException("상품 재고가 부족합니다. (현재 재고 수량 :" + this.stockNumber + ")");
+        }
+        this.stockNumber = restStock;
+    }
+
+    public void addStock(int stockNumber){
+        this.stockNumber += stockNumber;
     }
 }

@@ -2,11 +2,7 @@ package com.shop.entity;
 
 import com.shop.constant.Role;
 import com.shop.dto.MemberFormDto;
-import jdk.nashorn.internal.objects.annotations.Constructor;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.Entity;
@@ -14,7 +10,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "member")
-@Data
+@Getter @Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +30,7 @@ public class Member extends BaseEntity{
 
     private String address;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) //enum을 통해 숫자가 들어가는게 아니라 문자열 자체가 들어가게 된다.
     private Role role;
 
     public static Member createMember(MemberFormDto memberFormDto,
@@ -42,7 +39,7 @@ public class Member extends BaseEntity{
                 .email(memberFormDto.getEmail())
                 .address(memberFormDto.getAddress())
                 .password(passwordEncoder.encode(memberFormDto.getPassword()))
-                .role(Role.User)
+                .role(Role.ADMIN)
                 .build();
         return newMember;
     }
